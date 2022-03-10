@@ -1,12 +1,51 @@
 plugins {
     id 'groovy'
+    id "org.springframework.boot" version "2.6.4"
+    id "com.palantir.git-version" version "0.13.0"
 }
+
+apply plugin: 'io.spring.dependency-management'
 
 repositories {
     mavenCentral()
 }
 
+bootJar {
+    archiveName = 'sb-app.jar'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+group = "com.fieldju.commandpost"
+version = normalizedVersion()
+
+springBoot {
+    buildInfo {
+        properties {
+            name = 'Command Post'
+        }
+    }
+}
+
+ext {
+    versions = [
+            lombok: '1.18.22'
+    ]
+}
+
 dependencies {
+    // Lombok
+    compileOnly "org.projectlombok:lombok:${versions.lombok}"
+    annotationProcessor "org.projectlombok:lombok:${versions.lombok}"
+    testCompileOnly "org.projectlombok:lombok:${versions.lombok}"
+    testAnnotationProcessor "org.projectlombok:lombok:${versions.lombok}"
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
     testImplementation 'org.codehaus.groovy:groovy:3.0.9'
     testImplementation 'org.spockframework:spock-core:2.0-groovy-3.0'
     testImplementation 'junit:junit:4.13.2'
@@ -15,4 +54,30 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+String getFullVersion() {
+    try {
+        apply plugin: 'com.palantir.git-version'
+        return gitVersion()
+    } catch (Exception e) {
+        project.logger.error(e.getMessage())
+        return System.getProperty("version", "v0.0.0.dirty")
+    }
+}
+
+String normalizedVersion() {
+    String fullVersion = getFullVersion()
+    logger.lifecycle("full version: ${String.valueOf(fullVersion)}")
+    String normalized = fullVersion.split("-").first()
+    def resolvedVersion
+    if (project.hasProperty('stage') && project.stage == "true") {
+        resolvedVersion = "$normalized-stage.${new Date().getTime()}"
+    } else if (fullVersion.contains("dirty")) {
+        resolvedVersion = "$normalized-dev.${new Date().getTime()}"
+    } else {
+        resolvedVersion = fullVersion
+    }
+    logger.lifecycle("Resolved version: ${resolvedVersion}")
+    return resolvedVersion
 }

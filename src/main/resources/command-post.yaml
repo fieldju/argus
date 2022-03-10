@@ -1,0 +1,20 @@
+logging.level:
+  root: INFO
+
+management:
+  health.probes.enabled: true
+  endpoints:
+    enabled-by-default: false
+    web:
+      basePath: /
+      exposure.include: info, health
+  endpoint:
+    info.enabled: true
+    health:
+      enabled: true
+      showDetails: ALWAYS
+      group:
+        liveness:
+          include: livenessState
+        readiness:
+          include: readinessState
