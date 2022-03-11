@@ -1,0 +1,49 @@
+remotes {
+    pi {
+        host = '192.168.0.249'
+        user = 'fieldju'
+        identity = file("/home/fieldju/.ssh/id_rsa_pi")
+    }
+}
+
+task deploy(dependsOn: build) {
+    doLast {
+        ssh.run {
+            session(remotes.pi) {
+                put from: buildDir.getAbsolutePath() + File.separator + 'libs' + File.separator + 'sb-app.jar', into: '/home/fieldju/dev/bin/command-point/sb-app.jar'
+                execute 'sudo service command-point restart'
+            }
+        }
+    }
+}
+
+task startCommandPoint() {
+    doLast {
+        ssh.run {
+            session(remotes.pi) {
+                def res = execute 'sudo service command-point start'
+                println res
+            }
+        }
+    }
+}
+
+task stopCommandPoint() {
+    doLast {
+        ssh.run {
+            session(remotes.pi) {
+                execute 'sudo service command-point stop'
+            }
+        }
+    }
+}
+
+task restartCommandPoint() {
+    doLast {
+        ssh.run {
+            session(remotes.pi) {
+                execute 'sudo service command-point restart'
+            }
+        }
+    }
+}

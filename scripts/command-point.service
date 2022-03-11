@@ -1,0 +1,20 @@
+[Unit]
+Description=command-point
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/java \
+    -Djava.security.egd=file:/dev/./urandom \
+    -Djava.awt.headless=true -Dfile.encoding=UTF-8 \
+    -Djdk.tls.client.protocols=TLSv1.2 \
+    -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 \
+    -jar /home/fieldju/dev/bin/command-point/sb-app.jar
+RestartSec=300
+Restart=on-failure
+User=fieldju
+StandardOutput=append:/var/log/command-point-stdout.log
+StandardError=append:/var/log/command-point-stderr.log
+
+[Install]
+WantedBy=multi-user.target

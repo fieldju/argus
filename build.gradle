@@ -2,13 +2,13 @@ plugins {
     id 'groovy'
     id "org.springframework.boot" version "2.6.4"
     id "com.palantir.git-version" version "0.13.0"
+    id "org.hidetake.ssh" version "2.10.1"
 }
 
 apply plugin: 'io.spring.dependency-management'
 
-repositories {
-    mavenCentral()
-}
+apply from: file('gradle/dependencies.gradle')
+apply from: file('gradle/deploy.gradle')
 
 bootJar {
     archiveName = 'sb-app.jar'
@@ -29,28 +29,6 @@ springBoot {
         }
     }
 }
-
-ext {
-    versions = [
-            lombok: '1.18.22'
-    ]
-}
-
-dependencies {
-    // Lombok
-    compileOnly "org.projectlombok:lombok:${versions.lombok}"
-    annotationProcessor "org.projectlombok:lombok:${versions.lombok}"
-    testCompileOnly "org.projectlombok:lombok:${versions.lombok}"
-    testAnnotationProcessor "org.projectlombok:lombok:${versions.lombok}"
-
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-
-    testImplementation 'org.codehaus.groovy:groovy:3.0.9'
-    testImplementation 'org.spockframework:spock-core:2.0-groovy-3.0'
-    testImplementation 'junit:junit:4.13.2'
-}
-
 
 tasks.named('test') {
     useJUnitPlatform()
