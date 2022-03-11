@@ -1,5 +1,6 @@
 package com.fieldju.argus.service;
 
+import com.pi4j.component.button.ButtonPressedListener;
 import com.pi4j.component.buzzer.Buzzer;
 import com.pi4j.component.light.LED;
 import com.pi4j.device.pibrella.Pibrella;
@@ -8,6 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.time.Duration;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 @Component
@@ -17,17 +21,51 @@ public class PibrellaService {
   private final LED red;
   private final LED yellow;
   private final LED green;
+  private final AtomicBoolean siren = new AtomicBoolean(false);
+  private final ExecutorService executorService = Executors.newCachedThreadPool();
+  private final Executor sirenExecutor = CompletableFuture.delayedExecutor(1, TimeUnit.SECONDS, executorService);
 
   public PibrellaService(Pibrella pibrella) {
     buzzer = pibrella.getBuzzer();
     red = pibrella.getLed(PibrellaLed.RED);
     yellow = pibrella.getLed(PibrellaLed.YELLOW);
     green = pibrella.getLed(PibrellaLed.GREEN);
+    var button = pibrella.getButton();
+    button.addListener((ButtonPressedListener) event -> {
+      var cur = siren.get();
+      siren.set(!cur);
+    });
+    pollAndExecuteSiren();
+  }
+
+  private void pollAndExecuteSiren() {
+    CompletableFuture.runAsync(() -> {
+      while (siren.get()) {
+        for (var freq = 500; freq <= 1000; freq = freq + 1) {
+          if (freq != 500 && freq % 100 == 0) {
+            red.toggle();
+          }
+          if (!siren.get()) {
+            break;
+          }
+          buzzer.buzz(freq, (int) Duration.ofMillis(5).toMillis());
+        }
+        for (var freq = 1000; freq >= 500; freq = freq - 1) {
+          if (freq != 1000 && freq % 100 == 0) {
+            red.toggle();
+          }
+          if (!siren.get()) {
+            break;
+          }
+          buzzer.buzz(freq, (int) Duration.ofMillis(5).toMillis());
+        }
+      }
+      red.off();
+    }).thenRunAsync(this::pollAndExecuteSiren, sirenExecutor);
   }
 
   @PostConstruct
   public void after() {
     green.on();
   }
-
 }

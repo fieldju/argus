@@ -8,7 +8,7 @@ ExecStart=/home/fieldju/.sdkman/candidates/java/current/bin/java \
     -Djava.security.egd=file:/dev/./urandom \
     -Djava.awt.headless=true -Dfile.encoding=UTF-8 \
     -Djdk.tls.client.protocols=TLSv1.2 \
-    -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 \
+    -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:5005 \
     -jar /home/fieldju/dev/bin/argus/sb-app.jar
 RestartSec=300
 Restart=on-failure
