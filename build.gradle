@@ -19,13 +19,13 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
-group = "com.fieldju.commandpost"
+group = "com.fieldju.argus"
 version = normalizedVersion()
 
 springBoot {
     buildInfo {
         properties {
-            name = 'Command Post'
+            name = 'Argus'
         }
     }
 }

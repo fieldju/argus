@@ -10,39 +10,39 @@ task deploy(dependsOn: build) {
     doLast {
         ssh.run {
             session(remotes.pi) {
-                put from: buildDir.getAbsolutePath() + File.separator + 'libs' + File.separator + 'sb-app.jar', into: '/home/fieldju/dev/bin/command-point/sb-app.jar'
-                execute 'sudo service command-point restart'
+                put from: buildDir.getAbsolutePath() + File.separator + 'libs' + File.separator + 'sb-app.jar', into: '/home/fieldju/dev/bin/argus/sb-app.jar'
+                execute 'sudo service argus restart'
             }
         }
     }
 }
 
-task startCommandPoint() {
+task startArgus() {
     doLast {
         ssh.run {
             session(remotes.pi) {
-                def res = execute 'sudo service command-point start'
+                def res = execute 'sudo service argus start'
                 println res
             }
         }
     }
 }
 
-task stopCommandPoint() {
+task stopArgus() {
     doLast {
         ssh.run {
             session(remotes.pi) {
-                execute 'sudo service command-point stop'
+                execute 'sudo service argus stop'
             }
         }
     }
 }
 
-task restartCommandPoint() {
+task restartArgus() {
     doLast {
         ssh.run {
             session(remotes.pi) {
-                execute 'sudo service command-point restart'
+                execute 'sudo service argus restart'
             }
         }
     }

@@ -1,6 +1,6 @@
-package com.fieldju.commandpost;
+package com.fieldju.argus;
 
-import com.fieldju.commandpost.config.AppConfiguration;
+import com.fieldju.argus.config.AppConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 
 import java.util.Map;
@@ -10,8 +10,8 @@ public class Main {
         var appCtx = new SpringApplicationBuilder()
           .properties(
             Map.of( // spotless:off
-              "spring.application.name", "command-post",
-              "spring.config.name", "command-post",
+              "spring.application.name", "argus",
+              "spring.config.name", "arugs",
               "spring.profiles.active", "pibrella"
             )) // spotless:on
           .sources(AppConfiguration.class)
