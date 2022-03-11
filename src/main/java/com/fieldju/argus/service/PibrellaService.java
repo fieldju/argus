@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -60,12 +61,28 @@ public class PibrellaService {
           buzzer.buzz(freq, (int) Duration.ofMillis(5).toMillis());
         }
       }
-      red.off();
     }).thenRunAsync(this::pollAndExecuteSiren, sirenExecutor);
   }
 
+  public void enableSiren() {
+    siren.set(true);
+  }
+
+  public void disableSiren() {
+    siren.set(false);
+  }
+
   @PostConstruct
-  public void after() {
-    green.on();
+  public void after() throws InterruptedException {
+    for (var i = 0; i < 3; i++) {
+      List.of(green, yellow, red, yellow).forEach(led -> {
+        try {
+          led.pulseSync(Duration.ofMillis(250).toMillis());
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+      });
+      green.pulseSync(Duration.ofMillis(250).toMillis());
+    }
   }
 }
